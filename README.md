@@ -4,6 +4,12 @@
 [![Downloads](https://static.pepy.tech/personalized-badge/grad-cam?period=total&units=international_system&left_color=black&right_color=blue&left_text=Total%20Downloads)](https://pepy.tech/project/grad-cam)
 
 # Advanced AI explainability for PyTorch
+### Updates [Last updated 07/07/2023]:
+- [x] Integrate MPS for M1 chipset
+- [x] Automatically selects if the system is Linux or Mac
+- [ ] Integrate for windows os
+
+
 
 `pip install grad-cam`
 
