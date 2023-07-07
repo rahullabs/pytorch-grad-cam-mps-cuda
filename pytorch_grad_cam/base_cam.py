@@ -6,8 +6,15 @@ from pytorch_grad_cam.activations_and_gradients import ActivationsAndGradients
 from pytorch_grad_cam.utils.svd_on_activations import get_2d_projection
 from pytorch_grad_cam.utils.image import scale_cam_image
 from pytorch_grad_cam.utils.model_targets import ClassifierOutputTarget
+from sys import platform
 
-
+def check_os():
+    if platform == "linux" or platform == "linux2":
+        return 'linux'
+    elif platform == "darwin":
+        return 'mac'
+    elif platform == "win32":
+        return 'win'
 class BaseCAM:
     def __init__(self,
                  model: torch.nn.Module,
@@ -19,13 +26,20 @@ class BaseCAM:
         self.model = model.eval()
         self.target_layers = target_layers
         self.cuda = use_cuda
+        self.dev_sys = check_os()
         if self.cuda:
-            self.model = model.cuda()
+            if self.dev_type == 'linux':
+                self.model = model.cuda()
+            elif self.dev_type == 'mac':
+                self.model = self.model.to('mps')
+                
         self.reshape_transform = reshape_transform
         self.compute_input_gradient = compute_input_gradient
         self.uses_gradients = uses_gradients
         self.activations_and_grads = ActivationsAndGradients(
             self.model, target_layers, reshape_transform)
+        
+        
 
     """ Get a vector of weights for every channel in the target layer.
         Methods that return weights channels,
@@ -65,7 +79,10 @@ class BaseCAM:
                 eigen_smooth: bool = False) -> np.ndarray:
 
         if self.cuda:
-            input_tensor = input_tensor.cuda()
+            if self.dev_type == 'linux':
+                self.model = self.model.cuda()
+            elif self.dev_type == 'mac':
+                self.model = self.model.to('mps')
 
         if self.compute_input_gradient:
             input_tensor = torch.autograd.Variable(input_tensor,
